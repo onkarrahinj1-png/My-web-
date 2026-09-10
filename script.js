@@ -24,14 +24,14 @@ function initAuthTabs() {
     const adminLoginForm = document.getElementById("adminLoginForm");
 
     if (showLoginBtn && showSignupBtn && showAdminBtn) {
-        showLoginBtn.onclick = function () {
-            setActiveTab(showLoginBtn);
-            showForm(userLoginForm);
-        };
-
         showSignupBtn.onclick = function () {
             setActiveTab(showSignupBtn);
             showForm(userSignupForm);
+        };
+
+        showLoginBtn.onclick = function () {
+            setActiveTab(showLoginBtn);
+            showForm(userLoginForm);
         };
 
         showAdminBtn.onclick = function () {
@@ -51,21 +51,26 @@ function initAuthTabs() {
     }
 }
 
+// Fixed Login Function: Fetches real Full Name from LocalStorage
 function handleUserLogin(e) {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value;
     const users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
 
-    const user = users.find(u => u.email === email);
+    const user = users.find(u => u.email === email && u.password === password);
+
     if (user) {
         currentUser = { name: user.name, email: user.email, role: "user" };
+        localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        checkAuthStatus();
     } else {
-        currentUser = { name: email.split('@')[0], email: email, role: "user" };
+        alert("Account not found or invalid password! Please register first.");
+        document.getElementById("showSignupBtn").click();
     }
-    localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    checkAuthStatus();
 }
 
+// User Registration Function
 function handleUserSignup(e) {
     e.preventDefault();
     const name = document.getElementById("signupName").value.trim();
@@ -73,13 +78,21 @@ function handleUserSignup(e) {
     const password = document.getElementById("signupPassword").value;
 
     let users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+
+    const existingUser = users.find(u => u.email === email);
+    if (existingUser) {
+        alert("This email is already registered! Please Login.");
+        document.getElementById("showLoginBtn").click();
+        return;
+    }
+
     users.push({ name, email, password });
     localStorage.setItem("registeredUsers", JSON.stringify(users));
 
-    currentUser = { name, email, role: "user" };
-    localStorage.setItem("currentUser", JSON.stringify(currentUser));
-    alert("Registration Successful!");
-    checkAuthStatus();
+    alert("Registration Successful! Please Login to continue.");
+    
+    document.getElementById("userSignupForm").reset();
+    document.getElementById("showLoginBtn").click();
 }
 
 function handleAdminLogin(e) {
@@ -91,7 +104,7 @@ function handleAdminLogin(e) {
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
         checkAuthStatus();
     } else {
-        alert("Invalid Admin Secret Key! Use 'admin123' for demo.");
+        alert("Invalid Secret Key! Use 'admin123'");
     }
 }
 
@@ -281,7 +294,7 @@ function renderAdminMaterialsList() {
     const list = document.getElementById("adminMaterialList");
     list.innerHTML = "";
 
-    if(materials.length === 0) {
+    if (materials.length === 0) {
         list.innerHTML = "<li style='color:gray;'>No materials added yet.</li>";
         return;
     }
@@ -289,9 +302,7 @@ function renderAdminMaterialsList() {
     materials.forEach(item => {
         const li = document.createElement("li");
         li.style.margin = "8px 0";
-        li.innerHTML = `
-            <span><b>[${item.course.toUpperCase()}]</b> ${item.title} (<i>${item.type}</i>)</span>
-        `;
+        li.innerHTML = `<span><b>[${item.course.toUpperCase()}]</b> ${item.title} (<i>${item.type}</i>)</span>`;
         list.appendChild(li);
     });
 }
