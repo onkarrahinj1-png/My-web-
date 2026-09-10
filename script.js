@@ -2,7 +2,7 @@ let currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
 let currentCourseKey = "";
 
 document.addEventListener("DOMContentLoaded", function () {
-    initAuthTabs();
+    initAuthNavigation();
     checkAuthStatus();
     loadHistory();
 
@@ -14,34 +14,47 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
 });
 
-function initAuthTabs() {
+// Controls switching between Login, Registration Page, and Admin Login
+function initAuthNavigation() {
     const showLoginBtn = document.getElementById("showLoginBtn");
-    const showSignupBtn = document.getElementById("showSignupBtn");
     const showAdminBtn = document.getElementById("showAdminBtn");
+    const goToSignupLink = document.getElementById("goToSignupLink");
+    const goToLoginLink = document.getElementById("goToLoginLink");
 
     const userLoginForm = document.getElementById("userLoginForm");
     const userSignupForm = document.getElementById("userSignupForm");
     const adminLoginForm = document.getElementById("adminLoginForm");
+    const authTabsHeader = document.getElementById("authTabsHeader");
 
-    if (showLoginBtn && showSignupBtn && showAdminBtn) {
-        showSignupBtn.onclick = function () {
-            setActiveTab(showSignupBtn);
-            showForm(userSignupForm);
-        };
+    // Click "User Login" Tab
+    showLoginBtn.onclick = function () {
+        setActiveTab(showLoginBtn);
+        showForm(userLoginForm);
+        authTabsHeader.style.display = "flex";
+    };
 
-        showLoginBtn.onclick = function () {
-            setActiveTab(showLoginBtn);
-            showForm(userLoginForm);
-        };
+    // Click "Admin Login" Tab
+    showAdminBtn.onclick = function () {
+        setActiveTab(showAdminBtn);
+        showForm(adminLoginForm);
+        authTabsHeader.style.display = "flex";
+    };
 
-        showAdminBtn.onclick = function () {
-            setActiveTab(showAdminBtn);
-            showForm(adminLoginForm);
-        };
-    }
+    // Click "Register here" link
+    goToSignupLink.onclick = function (e) {
+        e.preventDefault();
+        showForm(userSignupForm);
+        authTabsHeader.style.display = "none"; // Hide tabs header to treat registration as a separate page
+    };
+
+    // Click "Back to Login" link inside Registration page
+    goToLoginLink.onclick = function (e) {
+        e.preventDefault();
+        showLoginBtn.click();
+    };
 
     function setActiveTab(btn) {
-        [showLoginBtn, showSignupBtn, showAdminBtn].forEach(b => b.classList.remove("active"));
+        [showLoginBtn, showAdminBtn].forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
     }
 
@@ -51,7 +64,7 @@ function initAuthTabs() {
     }
 }
 
-// Fixed Login Function: Fetches real Full Name from LocalStorage
+// Handles Login using Registered Name
 function handleUserLogin(e) {
     e.preventDefault();
     const email = document.getElementById("loginEmail").value.trim();
@@ -66,11 +79,11 @@ function handleUserLogin(e) {
         checkAuthStatus();
     } else {
         alert("Account not found or invalid password! Please register first.");
-        document.getElementById("showSignupBtn").click();
+        document.getElementById("goToSignupLink").click();
     }
 }
 
-// User Registration Function
+// User Registration Handler
 function handleUserSignup(e) {
     e.preventDefault();
     const name = document.getElementById("signupName").value.trim();
@@ -82,17 +95,17 @@ function handleUserSignup(e) {
     const existingUser = users.find(u => u.email === email);
     if (existingUser) {
         alert("This email is already registered! Please Login.");
-        document.getElementById("showLoginBtn").click();
+        document.getElementById("goToLoginLink").click();
         return;
     }
 
-    users.push({ name, email, password });
+    users.push({ id: Date.now(), name, email, password });
     localStorage.setItem("registeredUsers", JSON.stringify(users));
 
-    alert("Registration Successful! Please Login to continue.");
+    alert("Registration Successful! Redirecting to Login...");
     
     document.getElementById("userSignupForm").reset();
-    document.getElementById("showLoginBtn").click();
+    document.getElementById("goToLoginLink").click();
 }
 
 function handleAdminLogin(e) {
@@ -165,6 +178,7 @@ function openUserUploadPanel() {
 function openAdminPanel() {
     hideAllViews();
     document.getElementById("adminPanelView").classList.remove("hidden");
+    renderAdminRegisteredUsers();
     renderAdminMaterialsList();
 }
 
@@ -287,6 +301,62 @@ function handleAddMaterial(e) {
     alert("Material Added Successfully!");
     document.getElementById("addMaterialForm").reset();
     renderAdminMaterialsList();
+}
+
+// ADMIN FUNCTION 1: Render and Delete Registered Users
+function renderAdminRegisteredUsers() {
+    const users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+    const container = document.getElementById("adminUsersContainer");
+    container.innerHTML = "";
+
+    if (users.length === 0) {
+        container.innerHTML = "<p style='color:gray;'>No users registered yet.</p>";
+        return;
+    }
+
+    const table = document.createElement("table");
+    table.className = "admin-users-table";
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
+    users.forEach(user => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td><b>${user.name}</b></td>
+            <td>${user.email}</td>
+            <td>
+                <button class="delete-user-btn" onclick="deleteUser('${user.email}')">
+                    <i class="fa-solid fa-trash"></i> Delete
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    container.appendChild(table);
+}
+
+// ADMIN FUNCTION: Delete Registered User
+function deleteUser(email) {
+    if (confirm(`Are you sure you want to delete the user with email: ${email}?`)) {
+        let users = JSON.parse(localStorage.getItem("registeredUsers")) || [];
+        users = users.filter(u => u.email !== email);
+        localStorage.setItem("registeredUsers", JSON.stringify(users));
+
+        logActivity(`Deleted User: ${email}`);
+        renderAdminRegisteredUsers();
+    }
 }
 
 function renderAdminMaterialsList() {
