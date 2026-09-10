@@ -78,7 +78,7 @@ nav a, nav button {
     font-weight: bold;
     cursor: pointer;
     color: #64748b;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
 }
 
 .auth-tab-btn.active {
@@ -97,6 +97,23 @@ nav a, nav button {
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     font-size: 0.95rem;
+}
+
+.auth-switch-text {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #64748b;
+    margin-top: 5px;
+}
+
+.auth-switch-text a {
+    color: #0284c7;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-switch-text a:hover {
+    text-decoration: underline;
 }
 
 .submit-btn {
@@ -280,6 +297,39 @@ nav a, nav button {
     flex-direction: column;
     gap: 12px;
     margin-top: 15px;
+}
+
+/* Admin Registered Users Table Styling */
+.admin-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.admin-users-table th, .admin-users-table td {
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.admin-users-table th {
+    background-color: #f8fafc;
+    color: #0f172a;
+}
+
+.delete-user-btn {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.delete-user-btn:hover {
+    background-color: #dc2626;
 }
 
 .no-data-msg {
