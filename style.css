@@ -109,6 +109,10 @@ nav a, nav button {
     cursor: pointer;
 }
 
+.admin-btn {
+    background: #dc2626;
+}
+
 .hero {
     background: #1e293b;
     color: #ffffff;
