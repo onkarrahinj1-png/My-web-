@@ -13,7 +13,6 @@ body {
     min-height: 100vh;
 }
 
-/* Header Styles */
 header {
     background: #0f172a;
     color: #ffffff;
@@ -47,7 +46,7 @@ header {
 nav ul {
     display: flex;
     list-style: none;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
 }
 
@@ -76,7 +75,6 @@ nav button:hover, nav a:hover {
     border-color: #0284c7;
 }
 
-/* Downloads Nav Button Specific Styling */
 .nav-download-btn {
     background: #0284c7 !important;
     border-color: #0284c7 !important;
@@ -96,7 +94,6 @@ nav button:hover, nav a:hover {
     margin-left: 2px;
 }
 
-/* Auth Container */
 .auth-wrapper {
     display: flex;
     justify-content: center;
@@ -188,7 +185,6 @@ nav button:hover, nav a:hover {
     font-weight: 600;
 }
 
-/* Layout Setup */
 .hidden {
     display: none !important;
 }
@@ -227,7 +223,6 @@ nav button:hover, nav a:hover {
     flex: 1;
 }
 
-/* Course Grid */
 .course-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -277,7 +272,6 @@ nav button:hover, nav a:hover {
     cursor: pointer;
 }
 
-/* Materials & Admin Sections */
 .view-section {
     background: white;
     padding: 1.5rem;
@@ -317,7 +311,6 @@ nav button:hover, nav a:hover {
     list-style: none;
 }
 
-/* PDF Card Listing */
 .pdf-item-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -377,7 +370,6 @@ nav button:hover, nav a:hover {
     padding-bottom: 5px;
 }
 
-/* Sidebar History */
 .history-box {
     background: white;
     padding: 1.2rem;
@@ -429,5 +421,4 @@ footer {
     .main-wrapper {
         flex-direction: column;
     }
-    }
-    
+}
