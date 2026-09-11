@@ -47,7 +47,7 @@ header {
 nav ul {
     display: flex;
     list-style: none;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
 }
 
@@ -66,11 +66,34 @@ nav button, nav a {
     text-decoration: none;
     font-size: 0.9rem;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 nav button:hover, nav a:hover {
     background: #0284c7;
     border-color: #0284c7;
+}
+
+/* Downloads Nav Button Specific Styling */
+.nav-download-btn {
+    background: #0284c7 !important;
+    border-color: #0284c7 !important;
+    font-weight: 600;
+}
+
+.nav-download-btn:hover {
+    background: #0369a1 !important;
+}
+
+.dl-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 2px;
 }
 
 /* Auth Container */
@@ -307,6 +330,44 @@ nav button:hover, nav a:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.pdf-action-btns {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border: none;
+}
+
+.btn-open {
+    background-color: #f1f5f9;
+    color: #0f172a;
+}
+
+.btn-open:hover {
+    background-color: #e2e8f0;
+}
+
+.btn-download {
+    background-color: #0284c7;
+    color: white;
+}
+
+.btn-download:hover {
+    background-color: #0369a1;
 }
 
 .category-header {
@@ -368,4 +429,5 @@ footer {
     .main-wrapper {
         flex-direction: column;
     }
-}
+    }
+    
