@@ -6,98 +6,366 @@
 }
 
 body {
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: #f8fafc;
+    color: #1e293b;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
+/* Header Styles */
 header {
-    background-color: #1a252f;
+    background: #0f172a;
     color: #ffffff;
-    text-align: center;
-    padding: 2rem 1rem;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-header h1 {
-    font-size: 2rem;
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo i {
+    font-size: 1.8rem;
+    color: #38bdf8;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.logo h1 span {
+    color: #38bdf8;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 15px;
+    align-items: center;
+}
+
+nav li span {
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+nav button, nav a {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+nav button:hover, nav a:hover {
+    background: #0284c7;
+    border-color: #0284c7;
+}
+
+/* Auth Container */
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 1rem;
+    flex: 1;
+}
+
+.auth-box {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+}
+
+.auth-tabs {
+    display: flex;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.auth-tab-btn {
+    flex: 1;
+    padding: 10px;
+    background: none;
+    border: none;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+}
+
+.auth-tab-btn.active {
+    color: #0284c7;
+    border-bottom: 2px solid #0284c7;
+    margin-bottom: -2px;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.auth-form h2 {
+    font-size: 1.4rem;
+    color: #0f172a;
     margin-bottom: 0.5rem;
 }
 
-header p {
+.auth-form input, .admin-form input, .admin-form select {
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
     font-size: 0.95rem;
-    opacity: 0.8;
+    width: 100%;
+}
+
+.submit-btn {
+    background: #0284c7;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.submit-btn:hover {
+    background: #0369a1;
+}
+
+.submit-btn.admin-btn {
+    background: #475569;
+}
+
+.auth-switch-text {
+    font-size: 0.88rem;
+    color: #64748b;
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.auth-switch-text a {
+    color: #0284c7;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Layout Setup */
+.hidden {
+    display: none !important;
+}
+
+.hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: white;
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+
+.hero h2 {
+    font-size: 1.8rem;
+    margin-bottom: 8px;
+}
+
+.hero p {
+    color: #94a3b8;
+}
+
+.main-wrapper {
+    display: flex;
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    gap: 2rem;
+    flex: 1;
+    width: 100%;
 }
 
 .container {
-    max-width: 600px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+    flex: 3;
 }
 
-.upload-section, .list-section {
-    background: #ffffff;
+.sidebar {
+    flex: 1;
+}
+
+/* Course Grid */
+.course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.course-card {
+    background: white;
     padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-    margin-bottom: 2rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
 }
 
-h2 {
-    font-size: 1.3rem;
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+}
+
+.course-icon {
+    font-size: 2.5rem;
+    color: #0284c7;
     margin-bottom: 1rem;
-    color: #2c3e50;
-    border-bottom: 2px solid #ecf0f1;
-    padding-bottom: 0.5rem;
 }
 
-#uploadForm {
+.course-card h3 {
+    margin-bottom: 8px;
+    color: #0f172a;
+}
+
+.course-card p {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.explore-btn {
+    background: #f1f5f9;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: #0f172a;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Materials & Admin Sections */
+.view-section {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    color: #0f172a;
+    margin-bottom: 1.2rem;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #0284c7;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}
+
+.admin-form {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 1rem;
 }
 
-#uploadForm input {
-    padding: 0.75rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 0.95rem;
+.admin-box, .user-upload-box {
+    background: #f8fafc;
+    padding: 1.2rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
-#uploadForm button {
-    background-color: #3498db;
+.admin-list {
+    list-style: none;
+}
+
+/* PDF Card Listing */
+.pdf-item-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.pdf-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.category-header {
+    margin: 20px 0 10px 0;
+    color: #0284c7;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 5px;
+}
+
+/* Sidebar History */
+.history-box {
+    background: white;
+    padding: 1.2rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.history-box h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.count-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.history-list {
+    list-style: none;
+    font-size: 0.88rem;
+    color: #334155;
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 12px;
+}
+
+.clear-btn {
+    background: #ef4444;
     color: white;
     border: none;
-    padding: 0.75rem;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-#uploadForm button:hover {
-    background-color: #2980b9;
-}
-
-.card {
-    background: #f8f9fa;
-    border-left: 4px solid #3498db;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-}
-
-.card h3 {
-    margin-bottom: 0.3rem;
-}
-
-.card p {
-    margin-bottom: 0.8rem;
-    color: #666;
-}
-
-.card button {
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 0.8rem;
+    width: 100%;
+}
+
+footer {
+    text-align: center;
+    padding: 1.5rem;
+    background: #0f172a;
+    color: #64748b;
+    font-size: 0.88rem;
+    margin-top: auto;
+}
+
+@media (max-width: 768px) {
+    .main-wrapper {
+        flex-direction: column;
+    }
 }
