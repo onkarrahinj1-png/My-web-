@@ -1,367 +1,533 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { 
+    getFirestore, collection, addDoc, getDocs, doc, deleteDoc, 
+    onSnapshot, query, orderBy, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// Firebase Configuration Keys
+const firebaseConfig = {
+    apiKey: "AIzaSyALrGK6yYtpORV5jHvANzpAi0WwPTPUqFI",
+    authDomain: "study-suppliers.firebaseapp.com",
+    projectId: "study-suppliers",
+    storageBucket: "study-suppliers.firebasestorage.app",
+    messagingSenderId: "1066506689674",
+    appId: "1:1066506689674:web:3b860b11f6a1572929e173"
+};
+
+let app, db;
+try {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app);
+} catch (e) {
+    console.warn("Firebase Fallback Mode Enabled");
 }
 
-body {
-    background-color: #f8fafc;
-    color: #1e293b;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-header {
-    background: #0f172a;
-    color: #ffffff;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.logo i {
-    font-size: 1.8rem;
-    color: #38bdf8;
-}
-
-.logo h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-}
-
-.logo h1 span {
-    color: #38bdf8;
-}
-
-nav ul {
-    display: flex;
-    list-style: none;
-    gap: 10px;
-    align-items: center;
-    flex-wrap: wrap;
-}
-
-nav button {
-    background: #1e293b;
-    color: #f8fafc;
-    border: 1px solid #334155;
-    padding: 8px 14px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-nav button:hover {
-    background: #0284c7;
-    border-color: #0284c7;
-}
-
-.nav-download-btn {
-    background: #0284c7 !important;
-    border-color: #0284c7 !important;
-    font-weight: 600;
-}
-
-.nav-download-btn:hover {
-    background: #0369a1 !important;
-}
-
-.dl-badge {
-    background: #ef4444;
-    color: white;
-    font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 10px;
-    margin-left: 2px;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: white;
-    text-align: center;
-    padding: 2.5rem 1rem;
-}
-
-.hero h2 {
-    font-size: 1.8rem;
-    margin-bottom: 8px;
-}
-
-.hero p {
-    color: #94a3b8;
-}
-
-.main-wrapper {
-    display: flex;
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-    gap: 2rem;
-    flex: 1;
-    width: 100%;
-}
-
-.container {
-    flex: 3;
-}
-
-.sidebar {
-    flex: 1;
-}
-
-/* Grids */
-.course-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.subject-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.2rem;
-    margin-top: 1rem;
-}
-
-.course-card, .subject-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    text-align: center;
-    transition: transform 0.3s, box-shadow 0.3s;
-    cursor: pointer;
-}
-
-.course-card:hover, .subject-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    border-color: #38bdf8;
-}
-
-.course-icon, .subject-icon {
-    font-size: 2.2rem;
-    color: #0284c7;
-    margin-bottom: 1rem;
-}
-
-.course-card h3, .subject-card h3 {
-    margin-bottom: 8px;
-    color: #0f172a;
-    font-size: 1.1rem;
-}
-
-.course-card p, .subject-card p {
-    font-size: 0.85rem;
-    color: #64748b;
-    margin-bottom: 1rem;
-}
-
-.explore-btn {
-    background: #f1f5f9;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    color: #0f172a;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.view-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-}
-
-.section-title {
-    font-size: 1.3rem;
-    color: #0f172a;
-    margin-bottom: 1.2rem;
-}
-
-.back-btn {
-    background: none;
-    border: none;
-    color: #0284c7;
-    font-weight: 600;
-    cursor: pointer;
-    margin-bottom: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.admin-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.admin-form input, .admin-form select {
-    padding: 12px;
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    width: 100%;
-}
-
-.submit-btn {
-    background: #0284c7;
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.submit-btn:hover {
-    background: #0369a1;
-}
-
-.admin-box, .user-upload-box {
-    background: #f8fafc;
-    padding: 1.2rem;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-
-.admin-list {
-    list-style: none;
-}
-
-/* PDF Items */
-.pdf-item-card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 15px;
-}
-
-.pdf-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.pdf-action-btns {
-    display: flex;
-    gap: 10px;
-}
-
-.action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 6px 12px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    cursor: pointer;
-    border: none;
-}
-
-.btn-open {
-    background-color: #f1f5f9;
-    color: #0f172a;
-}
-
-.btn-open:hover {
-    background-color: #e2e8f0;
-}
-
-.btn-download {
-    background-color: #0284c7;
-    color: white;
-}
-
-.btn-download:hover {
-    background-color: #0369a1;
-}
-
-.category-header {
-    margin: 20px 0 10px 0;
-    color: #0284c7;
-    border-bottom: 2px solid #e2e8f0;
-    padding-bottom: 5px;
-}
-
-.history-box {
-    background: white;
-    padding: 1.2rem;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
-}
-
-.history-box h3 {
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-}
-
-.count-text {
-    font-size: 0.85rem;
-    color: #64748b;
-    margin-bottom: 10px;
-}
-
-.history-list {
-    list-style: none;
-    font-size: 0.88rem;
-    color: #334155;
-    max-height: 250px;
-    overflow-y: auto;
-    margin-bottom: 12px;
-}
-
-.clear-btn {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    width: 100%;
-}
-
-footer {
-    text-align: center;
-    padding: 1.5rem;
-    background: #0f172a;
-    color: #64748b;
-    font-size: 0.88rem;
-    margin-top: auto;
-}
-
-@media (max-width: 768px) {
-    .main-wrapper {
-        flex-direction: column;
+// BCom CA Syllabus Structure (Semesters & Subjects)
+const bcomCaSyllabus = {
+    fy: {
+        title: "FY BCom CA",
+        semesters: {
+            sem1: {
+                title: "Semester 1",
+                subjects: [
+                    "Financial Accounting",
+                    "Business Communication",
+                    "Principles of Management",
+                    "Computer Fundamentals & C Programming",
+                    "Office Automation tools"
+                ]
+            },
+            sem2: {
+                title: "Semester 2",
+                subjects: [
+                    "Financial Accounting II",
+                    "Business Economics",
+                    "Programming in C",
+                    "DBMS (Database Management)",
+                    "Web Technology (HTML/CSS)"
+                ]
+            }
+        }
+    },
+    sy: {
+        title: "SY BCom CA",
+        semesters: {
+            sem3: {
+                title: "Semester 3",
+                subjects: [
+                    "Cost & Management Accounting",
+                    "Data Structure using C",
+                    "Object Oriented Programming (C++)",
+                    "Software Engineering",
+                    "Business Regulatory Framework"
+                ]
+            },
+            sem4: {
+                title: "Semester 4",
+                subjects: [
+                    "Corporate Accounting",
+                    "Java Programming",
+                    "Computer Networks",
+                    "Database Systems (SQL)",
+                    "Management Information System (MIS)"
+                ]
+            }
+        }
+    },
+    ty: {
+        title: "TY BCom CA",
+        semesters: {
+            sem5: {
+                title: "Semester 5",
+                subjects: [
+                    "Cyber Security & Law",
+                    "Advanced Java",
+                    "Python Programming",
+                    "E-Commerce & Web Marketing",
+                    "Project Work I"
+                ]
+            },
+            sem6: {
+                title: "Semester 6",
+                subjects: [
+                    "Advanced Web Technology (PHP)",
+                    "Software Testing",
+                    "Cloud Computing",
+                    "Digital Marketing",
+                    "Main Project Work II"
+                ]
+            }
+        }
     }
+};
+
+// Local Data Helpers
+const getLocalData = (key) => JSON.parse(localStorage.getItem(key) || "[]");
+const setLocalData = (key, val) => localStorage.setItem(key, JSON.stringify(val));
+
+// Navigation Memory
+let currentSelectedYear = "";
+let currentSelectedSem = "";
+let currentSelectedSubject = "";
+
+document.addEventListener("DOMContentLoaded", function () {
+    setupFormEvents();
+    renderHistoryList();
+    updateDownloadBadgeCount();
+});
+
+// Setup Form Submission Handlers
+function setupFormEvents() {
+    const userShareForm = document.getElementById("userShareForm");
+    if (userShareForm) {
+        userShareForm.onsubmit = async function (e) {
+            e.preventDefault();
+            const year = document.getElementById("userMatYear").value;
+            const sem = document.getElementById("userMatSem").value;
+            const subject = document.getElementById("userMatSubject").value;
+            const category = document.getElementById("userMatCategory").value;
+            const title = document.getElementById("userMatTitle").value.trim();
+            const url = document.getElementById("userMatUrl").value.trim();
+
+            await saveNewMaterial(year, sem, subject, category, title, url);
+            userShareForm.reset();
+            openSubjectMaterials(year, sem, subject);
+        };
+    }
+
+    const adminForm = document.getElementById("addMaterialForm");
+    if (adminForm) {
+        adminForm.onsubmit = async function (e) {
+            e.preventDefault();
+            const year = document.getElementById("adminMatYear").value;
+            const sem = document.getElementById("adminMatSem").value;
+            const subject = document.getElementById("adminMatSubject").value;
+            const category = document.getElementById("adminMatCategory").value;
+            const title = document.getElementById("adminMatTitle").value.trim();
+            const url = document.getElementById("adminMatUrl").value.trim();
+
+            await saveNewMaterial(year, sem, subject, category, title, url);
+            adminForm.reset();
+            renderAdminMaterialsList();
+        };
+    }
+
+    const clearBtn = document.getElementById("clearHistoryBtn");
+    if (clearBtn) {
+        clearBtn.onclick = function() {
+            setLocalData("activity_logs", []);
+            renderHistoryList();
+        };
+    }
+}
+
+// Save Material to LocalStorage and Firebase
+async function saveNewMaterial(year, sem, subject, category, title, url) {
+    let mats = getLocalData("materials_data");
+    const newMat = { 
+        id: Date.now().toString(), 
+        year, sem, subject, category, title, url, 
+        date: new Date().toLocaleDateString() 
+    };
+    mats.unshift(newMat);
+    setLocalData("materials_data", mats);
+
+    if (db) {
+        try {
+            await addDoc(collection(db, "materialsData"), { 
+                year, sem, subject, category, title, url, timestamp: serverTimestamp() 
+            });
+        } catch (err) { console.log("Firebase sync skipped:", err); }
+    }
+
+    alert(`PDF Uploaded Successfully under ${subject}!`);
+    addActivityLog(`Shared PDF: ${title} (${subject})`);
+}
+
+// Navigation Functions
+window.showHome = function () {
+    hideAllViews();
+    document.getElementById("courseSelectionView").classList.remove("hidden");
+};
+
+window.openYear = function (yearKey) {
+    currentSelectedYear = yearKey;
+    hideAllViews();
+    const semView = document.getElementById("semesterSelectionView");
+    semView.classList.remove("hidden");
+
+    const yearData = bcomCaSyllabus[yearKey];
+    document.getElementById("selectedYearTitle").textContent = `${yearData.title} - Select Semester`;
+
+    const grid = document.getElementById("semesterGrid");
+    grid.innerHTML = "";
+
+    Object.keys(yearData.semesters).forEach(semKey => {
+        const sem = yearData.semesters[semKey];
+        const card = document.createElement("div");
+        card.className = "course-card";
+        card.onclick = () => openSemester(yearKey, semKey);
+        card.innerHTML = `
+            <i class="fa-solid fa-book-bookmark course-icon"></i>
+            <h3>${sem.title}</h3>
+            <p>${sem.subjects.length} Subjects Included</p>
+            <button type="button" class="explore-btn">Open Semester <i class="fa-solid fa-arrow-right"></i></button>
+        `;
+        grid.appendChild(card);
+    });
+};
+
+window.backToSemesters = function() {
+    if (currentSelectedYear) openYear(currentSelectedYear);
+    else showHome();
+};
+
+window.openSemester = function (yearKey, semKey) {
+    currentSelectedYear = yearKey;
+    currentSelectedSem = semKey;
+    hideAllViews();
+
+    const subjectView = document.getElementById("subjectSelectionView");
+    subjectView.classList.remove("hidden");
+
+    const semData = bcomCaSyllabus[yearKey].semesters[semKey];
+    document.getElementById("selectedSemTitle").textContent = `${bcomCaSyllabus[yearKey].title} (${semData.title}) - Subjects`;
+
+    const grid = document.getElementById("subjectGrid");
+    grid.innerHTML = "";
+
+    semData.subjects.forEach(subjName => {
+        const card = document.createElement("div");
+        card.className = "subject-card";
+        card.onclick = () => openSubjectMaterials(yearKey, semKey, subjName);
+        card.innerHTML = `
+            <i class="fa-solid fa-folder-open subject-icon"></i>
+            <h3>${subjName}</h3>
+            <p>Access Notes, Books & Papers</p>
+            <button type="button" class="explore-btn">View PDFs <i class="fa-solid fa-arrow-right"></i></button>
+        `;
+        grid.appendChild(card);
+    });
+};
+
+window.backToSubjects = function() {
+    if (currentSelectedYear && currentSelectedSem) {
+        openSemester(currentSelectedYear, currentSelectedSem);
+    } else {
+        showHome();
+    }
+};
+
+window.openSubjectMaterials = function (yearKey, semKey, subjectName) {
+    currentSelectedYear = yearKey;
+    currentSelectedSem = semKey;
+    currentSelectedSubject = subjectName;
+
+    hideAllViews();
+    document.getElementById("materialsDetailView").classList.remove("hidden");
+    document.getElementById("selectedSubjectTitle").textContent = `${subjectName} - Study PDFs`;
+
+    renderSubjectMaterials(yearKey, semKey, subjectName);
+};
+
+// Form Dropdown Dynamic Populators
+window.populateFormSemesters = function (yearSelectId, semSelectId, subjSelectId) {
+    const yearVal = document.getElementById(yearSelectId).value;
+    const semSelect = document.getElementById(semSelectId);
+    const subjSelect = document.getElementById(subjSelectId);
+
+    semSelect.innerHTML = '<option value="">2. Select Semester</option>';
+    subjSelect.innerHTML = '<option value="">3. Select Subject</option>';
+
+    if (!yearVal || !bcomCaSyllabus[yearVal]) return;
+
+    const sems = bcomCaSyllabus[yearVal].semesters;
+    Object.keys(sems).forEach(sKey => {
+        const opt = document.createElement("option");
+        opt.value = sKey;
+        opt.textContent = sems[sKey].title;
+        semSelect.appendChild(opt);
+    });
+};
+
+window.populateFormSubjects = function (yearSelectId, semSelectId, subjSelectId) {
+    const yearVal = document.getElementById(yearSelectId).value;
+    const semVal = document.getElementById(semSelectId).value;
+    const subjSelect = document.getElementById(subjSelectId);
+
+    subjSelect.innerHTML = '<option value="">3. Select Subject</option>';
+
+    if (!yearVal || !semVal || !bcomCaSyllabus[yearVal].semesters[semVal]) return;
+
+    const subjects = bcomCaSyllabus[yearVal].semesters[semVal].subjects;
+    subjects.forEach(subj => {
+        const opt = document.createElement("option");
+        opt.value = subj;
+        opt.textContent = subj;
+        subjSelect.appendChild(opt);
+    });
+};
+
+// Google Drive Link Normalizer & Converter
+function processPdfUrls(rawUrl) {
+    let previewUrl = rawUrl;
+    let downloadUrl = rawUrl;
+
+    if (rawUrl.includes("drive.google.com")) {
+        let fileId = "";
+        const match = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            fileId = match[1];
+            previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
+    }
+    return { previewUrl, downloadUrl };
+}
+
+// Render PDFs inside Selected Subject
+function renderSubjectMaterials(yearKey, semKey, subjectName) {
+    const grid = document.getElementById("materialsGrid");
+    grid.innerHTML = "";
+
+    const allMaterials = getLocalData("materials_data");
+    const subjectMaterials = allMaterials.filter(m => 
+        m.year === yearKey && m.sem === semKey && m.subject === subjectName
+    );
+
+    if (subjectMaterials.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <i class="fa-solid fa-folder-open" style="font-size:3rem; color:#0284c7; margin-bottom:12px;"></i><br>
+                <b>No PDFs available yet for ${subjectName}.</b><br>
+                <p style="color:#64748b; margin-top:5px;">Use 'Share PDF' button above to add study material for this subject.</p>
+            </div>`;
+        return;
+    }
+
+    const categories = ["Textbooks & Notes", "Question Papers", "Practical Files", "Reference PDFs"];
+
+    categories.forEach(category => {
+        const items = subjectMaterials.filter(m => m.category === category || (!m.category && category === "Textbooks & Notes"));
+
+        if (items.length > 0) {
+            const sectionHeader = document.createElement("div");
+            sectionHeader.className = "category-header";
+            sectionHeader.innerHTML = `<h3><i class="fa-solid fa-folder"></i> ${category}</h3>`;
+            grid.appendChild(sectionHeader);
+
+            items.forEach(item => {
+                const pdfCard = document.createElement("div");
+                pdfCard.className = "pdf-item-card";
+
+                const { previewUrl, downloadUrl } = processPdfUrls(item.url);
+
+                pdfCard.innerHTML = `
+                    <div class="pdf-item-header">
+                        <div>
+                            <i class="fa-solid fa-file-pdf" style="color: #e11d48; margin-right: 8px;"></i>
+                            <b>${item.title}</b>
+                        </div>
+                        <div class="pdf-action-btns">
+                            <a href="${previewUrl}" target="_blank" class="action-btn btn-open" onclick="trackAndSaveDownload('${item.title}', '${item.url}', 'view')">
+                                <i class="fa-solid fa-eye"></i> View PDF
+                            </a>
+                            <a href="${downloadUrl}" target="_blank" class="action-btn btn-download" onclick="trackAndSaveDownload('${item.title}', '${item.url}', 'download')">
+                                <i class="fa-solid fa-download"></i> Download PDF
+                            </a>
+                        </div>
+                    </div>
+                    <iframe src="${previewUrl}" width="100%" height="320" style="border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px;" allow="autoplay"></iframe>
+                `;
+                grid.appendChild(pdfCard);
+            });
+        }
+    });
+}
+
+// User Saved Downloads Logic
+window.trackAndSaveDownload = function (title, url, actionType) {
+    let downloads = getLocalData("user_saved_downloads");
+    const exists = downloads.some(d => d.pdfTitle === title);
+
+    if (!exists) {
+        downloads.push({
+            pdfTitle: title,
+            pdfUrl: url,
+            date: new Date().toLocaleDateString()
+        });
+        setLocalData("user_saved_downloads", downloads);
+    }
+
+    addActivityLog(`${actionType === 'download' ? 'Downloaded' : 'Viewed'} ${title}`);
+    updateDownloadBadgeCount();
+};
+
+function updateDownloadBadgeCount() {
+    const downloads = getLocalData("user_saved_downloads");
+    const badge = document.getElementById("dlNavBadge");
+    if (badge) badge.textContent = downloads.length;
+}
+
+window.openUserDownloads = function () {
+    hideAllViews();
+    document.getElementById("userDownloadsView").classList.remove("hidden");
+    renderUserDownloadsGrid();
+};
+
+function renderUserDownloadsGrid() {
+    const grid = document.getElementById("userDownloadsGrid");
+    grid.innerHTML = "";
+
+    const downloads = getLocalData("user_saved_downloads");
+
+    if (downloads.length === 0) {
+        grid.innerHTML = `
+            <div style="text-align:center; padding:30px;">
+                <i class="fa-solid fa-folder-open" style="font-size:2.5rem; color:#0284c7; margin-bottom:12px;"></i><br>
+                <b>No saved PDFs found.</b><br>PDFs you view or download will appear here.
+            </div>`;
+        return;
+    }
+
+    downloads.forEach(item => {
+        const { previewUrl, downloadUrl } = processPdfUrls(item.pdfUrl);
+
+        const pdfCard = document.createElement("div");
+        pdfCard.className = "pdf-item-card";
+        pdfCard.innerHTML = `
+            <div class="pdf-item-header">
+                <div>
+                    <i class="fa-solid fa-file-pdf" style="color: #e11d48; margin-right: 8px;"></i>
+                    <b>${item.pdfTitle}</b>
+                </div>
+                <div class="pdf-action-btns">
+                    <a href="${previewUrl}" target="_blank" class="action-btn btn-open">
+                        <i class="fa-solid fa-eye"></i> View PDF
+                    </a>
+                    <a href="${downloadUrl}" target="_blank" class="action-btn btn-download">
+                        <i class="fa-solid fa-download"></i> Re-Download
+                    </a>
+                </div>
+            </div>
+            <iframe src="${previewUrl}" width="100%" height="320" style="border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px;" allow="autoplay"></iframe>
+        `;
+        grid.appendChild(pdfCard);
+    });
+}
+
+// Panels Show/Hide
+window.openUserUploadPanel = function () {
+    hideAllViews();
+    document.getElementById("userUploadView").classList.remove("hidden");
+};
+
+window.openAdminPanel = function () {
+    hideAllViews();
+    document.getElementById("adminPanelView").classList.remove("hidden");
+    renderAdminMaterialsList();
+};
+
+function hideAllViews() {
+    [
+        "courseSelectionView", "semesterSelectionView", "subjectSelectionView", 
+        "materialsDetailView", "userUploadView", "userDownloadsView", "adminPanelView"
+    ].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+    });
+}
+
+function renderAdminMaterialsList() {
+    const list = document.getElementById("adminMaterialList");
+    const mats = getLocalData("materials_data");
+
+    if (mats.length === 0) {
+        list.innerHTML = "<li>No materials found.</li>";
+        return;
+    }
+
+    let html = "";
+    mats.forEach(m => {
+        html += `
+            <li style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #e2e8f0;">
+                <span><b>[${m.year ? m.year.toUpperCase() : ''} - ${m.subject}]</b> ${m.title}</span>
+                <button type="button" onclick="deleteMaterial('${m.id}')" style="background:#e11d48; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
+            </li>`;
+    });
+    list.innerHTML = html;
+}
+
+window.deleteMaterial = function (id) {
+    if (confirm("Delete this material?")) {
+        let mats = getLocalData("materials_data").filter(m => m.id !== id);
+        setLocalData("materials_data", mats);
+        renderAdminMaterialsList();
+    }
+};
+
+function addActivityLog(text) {
+    let logs = getLocalData("activity_logs");
+    logs.unshift({ text, date: new Date().toLocaleTimeString() });
+    setLocalData("activity_logs", logs);
+    renderHistoryList();
+}
+
+function renderHistoryList() {
+    const historyList = document.getElementById("historyList");
+    const countText = document.getElementById("downloadCount");
+    const logs = getLocalData("activity_logs");
+
+    if (countText) countText.textContent = logs.length;
+
+    if (logs.length === 0) {
+        historyList.innerHTML = `<li class="empty-msg">No activity yet.</li>`;
+        return;
+    }
+
+    let html = "";
+    logs.forEach(l => {
+        html += `<li style="padding: 6px 0; border-bottom: 1px solid #f1f5f9;"><i class="fa-solid fa-angle-right"></i> ${l.text}</li>`;
+    });
+    historyList.innerHTML = html;
 }
