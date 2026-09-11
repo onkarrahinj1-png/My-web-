@@ -41,7 +41,7 @@
                 </p>
             </form>
 
-            <!-- User Registration Form (Separate View) -->
+            <!-- User Registration Form -->
             <form id="userSignupForm" class="auth-form hidden">
                 <h2>Create New Account</h2>
                 <input type="text" id="signupName" placeholder="Full Name" required>
@@ -144,7 +144,15 @@
                     </div>
                 </div>
 
-                <!-- View 4: Admin Management Panel -->
+                <!-- View 4: User My Downloads Section -->
+                <div id="userDownloadsView" class="view-section hidden">
+                    <button class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
+                    <h2 class="section-title"><i class="fa-solid fa-download"></i> My Downloaded / Saved PDFs</h2>
+                    <p style="margin-bottom: 15px; color: #64748b;">You can view all your previously downloaded PDFs here anytime without downloading again.</p>
+                    <div id="userDownloadsGrid"></div>
+                </div>
+
+                <!-- View 5: Admin Management Panel -->
                 <div id="adminPanelView" class="view-section hidden">
                     <button class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
                     <h2 class="section-title"><i class="fa-solid fa-user-shield"></i> Admin Control Panel</h2>
@@ -213,4 +221,4 @@
     <script type="module" src="script.js"></script>
 </body>
                     </html>
-                    
+                                    
