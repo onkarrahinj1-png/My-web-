@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Study Suppliers</title>
+    <title>Study Suppliers - BCom CA Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -15,175 +15,157 @@
             <h1>Study <span>Suppliers</span></h1>
         </div>
         <nav>
-            <ul id="navLinks"></ul>
+            <ul id="navLinks">
+                <li><button type="button" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</button></li>
+                <li><button type="button" onclick="openUserUploadPanel()"><i class="fa-solid fa-upload"></i> Share PDF</button></li>
+                <li><button type="button" onclick="openUserDownloads()" class="nav-download-btn"><i class="fa-solid fa-download"></i> My Saved PDFs <span id="dlNavBadge" class="dl-badge">0</span></button></li>
+                <li><button type="button" onclick="openAdminPanel()"><i class="fa-solid fa-user-shield"></i> Admin Panel</button></li>
+            </ul>
         </nav>
     </header>
 
-    <!-- Authentication Container (Login / Register / Admin) -->
-    <div id="authContainer" class="auth-wrapper">
-        <div class="auth-box">
-            
-            <!-- Views Toggle Tabs -->
-            <div class="auth-tabs" id="authTabsHeader">
-                <button type="button" class="auth-tab-btn active" id="showLoginBtn">User Login</button>
-                <button type="button" class="auth-tab-btn" id="showAdminBtn">Admin Login</button>
-            </div>
-
-            <!-- User Login Form -->
-            <form id="userLoginForm" class="auth-form">
-                <h2>User Login</h2>
-                <input type="email" id="loginEmail" placeholder="Email Address" required>
-                <input type="password" id="loginPassword" placeholder="Password" required>
-                <button type="submit" id="btnLoginSubmit" class="submit-btn">Login</button>
-                
-                <p class="auth-switch-text">
-                    New user? <a href="#" id="goToSignupLink">Register here</a>
-                </p>
-            </form>
-
-            <!-- User Registration Form -->
-            <form id="userSignupForm" class="auth-form hidden">
-                <h2>Create New Account</h2>
-                <input type="text" id="signupName" placeholder="Full Name" required>
-                <input type="email" id="signupEmail" placeholder="Email Address" required>
-                <input type="password" id="signupPassword" placeholder="Password" required>
-                <button type="submit" id="btnSignupSubmit" class="submit-btn">Register Account</button>
-                
-                <p class="auth-switch-text">
-                    Already registered? <a href="#" id="goToLoginLink">Back to Login</a>
-                </p>
-            </form>
-
-            <!-- Admin Login Form -->
-            <form id="adminLoginForm" class="auth-form hidden">
-                <h2>Admin Login</h2>
-                <input type="email" id="adminEmail" placeholder="Admin Email" required>
-                <input type="password" id="adminPassword" placeholder="Admin Password" required>
-                <input type="password" id="adminSecretKey" placeholder="Secret Key (Demo: admin123)" required>
-                <button type="submit" id="btnAdminSubmit" class="submit-btn admin-btn">Login as Admin</button>
-            </form>
-
-        </div>
-    </div>
-
     <!-- Main Application Area -->
-    <div id="mainApp" class="hidden">
+    <div id="mainApp">
         <section class="hero">
-            <h2 id="heroTitle">Welcome to Study Suppliers</h2>
-            <p id="heroSubtitle">Select your course to access Textbooks, Question Papers, and Practicals.</p>
+            <h2>Welcome to Study Suppliers</h2>
+            <p>Select your Year, Semester, and Subject to access Textbooks, Notes, Question Papers, and Practicals.</p>
         </section>
 
         <div class="main-wrapper">
             <main class="container">
                 
-                <!-- View 1: Course Selection -->
+                <!-- View 1: Course / Year Selection -->
                 <div id="courseSelectionView" class="view-section">
-                    <h2 class="section-title">Select Your Course</h2>
+                    <h2 class="section-title">Select Your Academic Year</h2>
                     <div class="course-grid">
                         
-                        <div class="course-card" onclick="openCourse('fy')">
+                        <div class="course-card" onclick="openYear('fy')">
                             <i class="fa-solid fa-graduation-cap course-icon"></i>
                             <h3>FY BCom CA</h3>
-                            <p>First Year BCom Computer Applications</p>
-                            <button type="button" class="explore-btn">Open Course <i class="fa-solid fa-arrow-right"></i></button>
+                            <p>First Year (Semester 1 & Semester 2)</p>
+                            <button type="button" class="explore-btn">Open Year <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
 
-                        <div class="course-card" onclick="openCourse('sy')">
+                        <div class="course-card" onclick="openYear('sy')">
                             <i class="fa-solid fa-user-graduate course-icon"></i>
                             <h3>SY BCom CA</h3>
-                            <p>Second Year BCom Computer Applications</p>
-                            <button type="button" class="explore-btn">Open Course <i class="fa-solid fa-arrow-right"></i></button>
+                            <p>Second Year (Semester 3 & Semester 4)</p>
+                            <button type="button" class="explore-btn">Open Year <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
 
-                        <div class="course-card" onclick="openCourse('ty')">
+                        <div class="course-card" onclick="openYear('ty')">
                             <i class="fa-solid fa-award course-icon"></i>
                             <h3>TY BCom CA</h3>
-                            <p>Third Year BCom Computer Applications</p>
-                            <button type="button" class="explore-btn">Open Course <i class="fa-solid fa-arrow-right"></i></button>
+                            <p>Third Year (Semester 5 & Semester 6)</p>
+                            <button type="button" class="explore-btn">Open Year <i class="fa-solid fa-arrow-right"></i></button>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- View 2: Course Materials -->
-                <div id="courseDetailView" class="view-section hidden">
-                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
-                    <h2 class="section-title" id="selectedCourseTitle">Course Materials</h2>
+                <!-- View 2: Semester Selection -->
+                <div id="semesterSelectionView" class="view-section hidden">
+                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Years</button>
+                    <h2 class="section-title" id="selectedYearTitle">Select Semester</h2>
+                    <div id="semesterGrid" class="course-grid"></div>
+                </div>
+
+                <!-- View 3: Subject Selection -->
+                <div id="subjectSelectionView" class="view-section hidden">
+                    <button type="button" class="back-btn" onclick="backToSemesters()"><i class="fa-solid fa-arrow-left"></i> Back to Semesters</button>
+                    <h2 class="section-title" id="selectedSemTitle">Select Subject</h2>
+                    <div id="subjectGrid" class="subject-grid"></div>
+                </div>
+
+                <!-- View 4: Subject PDF Materials List -->
+                <div id="materialsDetailView" class="view-section hidden">
+                    <button type="button" class="back-btn" onclick="backToSubjects()"><i class="fa-solid fa-arrow-left"></i> Back to Subjects</button>
+                    <h2 class="section-title" id="selectedSubjectTitle">Study Materials</h2>
                     
                     <div id="materialsGrid"></div>
                 </div>
 
-                <!-- View 3: User Share PDF Section -->
+                <!-- View 5: User Share PDF Section -->
                 <div id="userUploadView" class="view-section hidden">
-                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
+                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
                     <h2 class="section-title"><i class="fa-solid fa-share-nodes"></i> Share & Upload PDF Link</h2>
                     
                     <div class="user-upload-box">
-                        <h3>Upload PDF to Course Section</h3>
-                        <p style="margin-bottom: 15px; color: #64748b;">Uploaded PDFs will be instantly displayed line-by-line inside the selected section.</p>
+                        <h3>Upload PDF to Specific Subject</h3>
+                        <p style="margin-bottom: 15px; color: #64748b;">Select Year, Semester, and Subject where your PDF should appear.</p>
                         
                         <form id="userShareForm" class="admin-form">
-                            <select id="userMatCourse" required>
-                                <option value="">Select Target Course</option>
+                            <select id="userMatYear" required onchange="populateFormSemesters('userMatYear', 'userMatSem', 'userMatSubject')">
+                                <option value="">1. Select Academic Year</option>
                                 <option value="fy">FY BCom CA</option>
                                 <option value="sy">SY BCom CA</option>
                                 <option value="ty">TY BCom CA</option>
                             </select>
 
-                            <select id="userMatType" required>
-                                <option value="Practical Files">Practical Files</option>
-                                <option value="Textbooks">Textbooks / Notes</option>
-                                <option value="Question Papers">Question Papers</option>
-                                <option value="Shared PDFs">Shared PDFs Section</option>
+                            <select id="userMatSem" required onchange="populateFormSubjects('userMatYear', 'userMatSem', 'userMatSubject')">
+                                <option value="">2. Select Semester</option>
                             </select>
 
-                            <input type="text" id="userMatTitle" placeholder="Document Title" required>
+                            <select id="userMatSubject" required>
+                                <option value="">3. Select Subject</option>
+                            </select>
+
+                            <select id="userMatCategory" required>
+                                <option value="Textbooks & Notes">Textbooks / Notes</option>
+                                <option value="Question Papers">Question Papers</option>
+                                <option value="Practical Files">Practical Files</option>
+                                <option value="Reference PDFs">Reference PDFs</option>
+                            </select>
+
+                            <input type="text" id="userMatTitle" placeholder="Document Title (e.g. Unit 1 Notes / 2025 Paper)" required>
                             <input type="url" id="userMatUrl" placeholder="Google Drive Link or Direct PDF URL" required>
-                            <button type="submit" class="submit-btn share-btn"><i class="fa-solid fa-paper-plane"></i> Upload PDF Now</button>
+                            <button type="submit" class="submit-btn share-btn"><i class="fa-solid fa-paper-plane"></i> Upload & Share PDF Now</button>
                         </form>
                     </div>
                 </div>
 
-                <!-- View 4: User My Downloads Section -->
+                <!-- View 6: Saved PDFs / My Downloads View -->
                 <div id="userDownloadsView" class="view-section hidden">
-                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
-                    <h2 class="section-title"><i class="fa-solid fa-download"></i> My Downloaded / Saved PDFs</h2>
-                    <p style="margin-bottom: 15px; color: #64748b;">You can view all your previously downloaded PDFs here anytime without downloading again.</p>
+                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
+                    <h2 class="section-title"><i class="fa-solid fa-download"></i> My Saved PDFs</h2>
+                    <p style="margin-bottom: 15px; color: #64748b;">You can view your opened or downloaded PDFs here anytime without downloading again.</p>
                     <div id="userDownloadsGrid"></div>
                 </div>
 
-                <!-- View 5: Admin Panel -->
+                <!-- View 7: Admin Panel -->
                 <div id="adminPanelView" class="view-section hidden">
-                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Courses</button>
+                    <button type="button" class="back-btn" onclick="showHome()"><i class="fa-solid fa-arrow-left"></i> Back to Home</button>
                     <h2 class="section-title"><i class="fa-solid fa-user-shield"></i> Admin Control Panel</h2>
                     
                     <div class="admin-box">
                         <h3><i class="fa-solid fa-file-circle-plus"></i> Add New Study Material PDF</h3>
                         <form id="addMaterialForm" class="admin-form">
-                            <select id="matCourse" required>
-                                <option value="">Select Course</option>
+                            <select id="adminMatYear" required onchange="populateFormSemesters('adminMatYear', 'adminMatSem', 'adminMatSubject')">
+                                <option value="">1. Select Year</option>
                                 <option value="fy">FY BCom CA</option>
                                 <option value="sy">SY BCom CA</option>
                                 <option value="ty">TY BCom CA</option>
                             </select>
 
-                            <select id="matType" required>
-                                <option value="">Select Material Category</option>
-                                <option value="Practical Files">Practical Files</option>
-                                <option value="Textbooks">Textbook</option>
-                                <option value="Question Papers">Question Paper</option>
-                                <option value="Shared PDFs">Shared PDFs Section</option>
+                            <select id="adminMatSem" required onchange="populateFormSubjects('adminMatYear', 'adminMatSem', 'adminMatSubject')">
+                                <option value="">2. Select Semester</option>
                             </select>
 
-                            <input type="text" id="matTitle" placeholder="Title" required>
-                            <input type="url" id="matUrl" placeholder="PDF URL / Drive Link" required>
-                            <button type="submit" class="submit-btn admin-btn">Upload Material</button>
-                        </form>
-                    </div>
+                            <select id="adminMatSubject" required>
+                                <option value="">3. Select Subject</option>
+                            </select>
 
-                    <div class="admin-box" style="margin-top: 25px;">
-                        <h3><i class="fa-solid fa-users"></i> Registered Users Management</h3>
-                        <div id="adminUsersContainer" style="margin-top: 15px;"></div>
+                            <select id="adminMatCategory" required>
+                                <option value="Textbooks & Notes">Textbooks / Notes</option>
+                                <option value="Question Papers">Question Papers</option>
+                                <option value="Practical Files">Practical Files</option>
+                                <option value="Reference PDFs">Reference PDFs</option>
+                            </select>
+
+                            <input type="text" id="adminMatTitle" placeholder="Document Title" required>
+                            <input type="url" id="adminMatUrl" placeholder="Google Drive / Direct PDF Link" required>
+                            <button type="submit" class="submit-btn admin-btn">Upload PDF as Admin</button>
+                        </form>
                     </div>
 
                     <div class="admin-box" style="margin-top: 25px;">
@@ -198,7 +180,7 @@
             <aside class="sidebar">
                 <div class="history-box">
                     <h3><i class="fa-solid fa-clock-rotate-left"></i> Activity Log</h3>
-                    <p class="count-text">Total Activity Items: <span id="downloadCount">0</span></p>
+                    <p class="count-text">Total Activities: <span id="downloadCount">0</span></p>
                     <ul id="historyList" class="history-list">
                         <li class="empty-msg">No activity yet.</li>
                     </ul>
@@ -210,7 +192,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2026 Study Suppliers | All Rights Reserved</p>
+        <p>&copy; 2026 Study Suppliers | BCom CA Portal</p>
     </footer>
 
     <!-- Script File -->
