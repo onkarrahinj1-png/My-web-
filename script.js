@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getFirestore, collection, addDoc, getDocs, doc, deleteDoc, 
-    onSnapshot, query, orderBy, serverTimestamp 
+    onSnapshot, query, orderBy, serverTimestamp, where 
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // Firebase Configuration Keys
@@ -27,6 +27,7 @@ let currentCourseKey = "";
 const usersCol = collection(db, "registeredUsers");
 const materialsCol = collection(db, "materialsData");
 const historyCol = collection(db, "activityHistory");
+const userDownloadsCol = collection(db, "userDownloads");
 
 document.addEventListener("DOMContentLoaded", function () {
     initAuthNavigation();
@@ -64,6 +65,16 @@ function setupRealtimeListeners() {
             renderAdminRegisteredUsers(snapshot);
         }
     });
+
+    // 4. Listen for User Downloads
+    if (currentUser) {
+        onSnapshot(query(userDownloadsCol, where("userEmail", "==", currentUser.email)), (snapshot) => {
+            updateDownloadBadge(snapshot.size);
+            if (!document.getElementById("userDownloadsView").classList.contains("hidden")) {
+                renderUserDownloadsGrid(snapshot);
+            }
+        });
+    }
 }
 
 // Controls switching between Login, Registration Page, and Admin Login
@@ -78,28 +89,24 @@ function initAuthNavigation() {
     const adminLoginForm = document.getElementById("adminLoginForm");
     const authTabsHeader = document.getElementById("authTabsHeader");
 
-    // Click "User Login" Tab
     showLoginBtn.onclick = function () {
         setActiveTab(showLoginBtn);
         showForm(userLoginForm);
         authTabsHeader.style.display = "flex";
     };
 
-    // Click "Admin Login" Tab
     showAdminBtn.onclick = function () {
         setActiveTab(showAdminBtn);
         showForm(adminLoginForm);
         authTabsHeader.style.display = "flex";
     };
 
-    // Click "Register here" link
     goToSignupLink.onclick = function (e) {
         e.preventDefault();
         showForm(userSignupForm);
         authTabsHeader.style.display = "none";
     };
 
-    // Click "Back to Login" link inside Registration page
     goToLoginLink.onclick = function (e) {
         e.preventDefault();
         showLoginBtn.click();
@@ -119,7 +126,7 @@ function initAuthNavigation() {
 // Handles User Login using Firebase Firestore
 async function handleUserLogin(e) {
     e.preventDefault();
-    const email = document.getElementById("loginEmail").value.trim();
+    const email = document.getElementById("loginEmail").value.trim().toLowerCase();
     const password = document.getElementById("loginPassword").value;
 
     try {
@@ -127,7 +134,7 @@ async function handleUserLogin(e) {
         let user = null;
         snapshot.forEach(docSnap => {
             const data = docSnap.data();
-            if (data.email === email && data.password === password) {
+            if (data.email.toLowerCase() === email && data.password === password) {
                 user = { id: docSnap.id, ...data };
             }
         });
@@ -136,6 +143,7 @@ async function handleUserLogin(e) {
             currentUser = { name: user.name, email: user.email, role: "user" };
             localStorage.setItem("currentUser", JSON.stringify(currentUser));
             checkAuthStatus();
+            setupRealtimeListeners();
             addActivityLog(`${user.name} logged in.`);
         } else {
             alert("Account not found or invalid password! Please register first.");
@@ -150,14 +158,14 @@ async function handleUserLogin(e) {
 async function handleUserSignup(e) {
     e.preventDefault();
     const name = document.getElementById("signupName").value.trim();
-    const email = document.getElementById("signupEmail").value.trim();
+    const email = document.getElementById("signupEmail").value.trim().toLowerCase();
     const password = document.getElementById("signupPassword").value;
 
     try {
         const snapshot = await getDocs(usersCol);
         let existingUser = false;
         snapshot.forEach(docSnap => {
-            if (docSnap.data().email === email) existingUser = true;
+            if (docSnap.data().email.toLowerCase() === email) existingUser = true;
         });
 
         if (existingUser) {
@@ -187,9 +195,10 @@ function handleAdminLogin(e) {
     const secretKey = document.getElementById("adminSecretKey").value.trim();
 
     if (secretKey === "admin123") {
-        currentUser = { name: "System Admin", role: "admin" };
+        currentUser = { name: "System Admin", email: "admin@studysuppliers.com", role: "admin" };
         localStorage.setItem("currentUser", JSON.stringify(currentUser));
         checkAuthStatus();
+        setupRealtimeListeners();
         addActivityLog("Admin logged in.");
     } else {
         alert("Invalid Secret Key! Use 'admin123'");
@@ -215,6 +224,7 @@ function checkAuthStatus() {
         let navHTML = `<li><span>Welcome, <b>${currentUser.name}</b></span></li>`;
         navHTML += `<li><a href="#" onclick="showHome()"><i class="fa-solid fa-house"></i> Home</a></li>`;
         navHTML += `<li><button onclick="openUserUploadPanel()"><i class="fa-solid fa-upload"></i> Share PDF</button></li>`;
+        navHTML += `<li><button onclick="openUserDownloads()" class="nav-download-btn"><i class="fa-solid fa-download"></i> My Downloads <span id="dlNavBadge" class="dl-badge">0</span></button></li>`;
 
         if (currentUser.role === "admin") {
             navHTML += `<li><button onclick="openAdminPanel()"><i class="fa-solid fa-user-shield"></i> Admin Panel</button></li>`;
@@ -250,6 +260,12 @@ window.openUserUploadPanel = function () {
     document.getElementById("userUploadView").classList.remove("hidden");
 };
 
+window.openUserDownloads = function () {
+    hideAllViews();
+    document.getElementById("userDownloadsView").classList.remove("hidden");
+    loadUserDownloads();
+};
+
 window.openAdminPanel = function () {
     hideAllViews();
     document.getElementById("adminPanelView").classList.remove("hidden");
@@ -261,16 +277,25 @@ function hideAllViews() {
     document.getElementById("courseSelectionView").classList.add("hidden");
     document.getElementById("courseDetailView").classList.add("hidden");
     document.getElementById("userUploadView").classList.add("hidden");
+    document.getElementById("userDownloadsView").classList.add("hidden");
     document.getElementById("adminPanelView").classList.add("hidden");
 }
 
-function formatEmbedUrl(rawUrl) {
+// Extract & Process Google Drive URLs for correct Embedding & Downloading
+function processPdfUrls(rawUrl) {
+    let previewUrl = rawUrl;
+    let downloadUrl = rawUrl;
+
     if (rawUrl.includes("drive.google.com")) {
-        return rawUrl.replace(/\/view\?usp=[a-zA-Z0-9_]+/, "/preview")
-                     .replace(/\/view$/, "/preview")
-                     .replace(/\/edit$/, "/preview");
+        let fileId = "";
+        const match = rawUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || rawUrl.match(/id=([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            fileId = match[1];
+            previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+            downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
     }
-    return rawUrl;
+    return { previewUrl, downloadUrl };
 }
 
 // Render Course Materials from Firestore
@@ -311,19 +336,24 @@ async function renderCourseMaterials(courseKey) {
                     const pdfCard = document.createElement("div");
                     pdfCard.className = "pdf-item-card";
 
-                    const embedUrl = formatEmbedUrl(item.url);
+                    const { previewUrl, downloadUrl } = processPdfUrls(item.url);
 
                     pdfCard.innerHTML = `
                         <div class="pdf-item-header">
                             <div class="pdf-item-title">
-                                <i class="fa-solid fa-file-pdf" style="color: #e11d48; margin-right: 8px;"></i>
+                                <i class="fa-solid fa-file-pdf" style="color: #e11d48; margin-right: 8px; font-size:1.1rem;"></i>
                                 <b>${item.title}</b>
                             </div>
-                            <a href="${item.url}" target="_blank" class="download-btn" onclick="logDownload('${item.title}')" style="color:#0284c7; text-decoration:none; font-weight:600; font-size:0.9rem;">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open PDF
-                            </a>
+                            <div class="pdf-action-btns">
+                                <a href="${previewUrl}" target="_blank" class="action-btn btn-open" onclick="trackAndSaveDownload('${item.title}', '${item.url}', 'view')">
+                                    <i class="fa-solid fa-eye"></i> View PDF
+                                </a>
+                                <a href="${downloadUrl}" target="_blank" class="action-btn btn-download" onclick="trackAndSaveDownload('${item.title}', '${item.url}', 'download')">
+                                    <i class="fa-solid fa-download"></i> Download PDF
+                                </a>
+                            </div>
                         </div>
-                        <iframe src="${embedUrl}" width="100%" height="300" style="border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px;" allow="autoplay"></iframe>
+                        <iframe src="${previewUrl}" width="100%" height="320" style="border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px;" allow="autoplay"></iframe>
                     `;
                     pdfListContainer.appendChild(pdfCard);
                 });
@@ -371,6 +401,88 @@ async function handleUserShareMaterial(e) {
     }
 }
 
+// Track and Save User Downloads in Firestore
+window.trackAndSaveDownload = async function (title, url, actionType) {
+    if (!currentUser) return;
+
+    addActivityLog(`${currentUser.name} ${actionType === 'download' ? 'downloaded' : 'viewed'} PDF: ${title}`);
+
+    try {
+        const q = query(userDownloadsCol, 
+            where("userEmail", "==", currentUser.email), 
+            where("pdfTitle", "==", title)
+        );
+        const snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+            await addDoc(userDownloadsCol, {
+                userEmail: currentUser.email,
+                userName: currentUser.name,
+                pdfTitle: title,
+                pdfUrl: url,
+                timestamp: serverTimestamp()
+            });
+        }
+    } catch (err) {
+        console.error("Save Download Error:", err);
+    }
+};
+
+function updateDownloadBadge(count) {
+    const badge = document.getElementById("dlNavBadge");
+    if (badge) badge.textContent = count || 0;
+}
+
+async function loadUserDownloads() {
+    if (!currentUser) return;
+    const grid = document.getElementById("userDownloadsGrid");
+    grid.innerHTML = "<p style='color:#64748b;'>Loading your downloaded PDFs...</p>";
+
+    try {
+        const q = query(userDownloadsCol, where("userEmail", "==", currentUser.email));
+        const snapshot = await getDocs(q);
+        renderUserDownloadsGrid(snapshot);
+    } catch (e) {
+        grid.innerHTML = "<p>Error loading downloads.</p>";
+    }
+}
+
+function renderUserDownloadsGrid(snapshot) {
+    const grid = document.getElementById("userDownloadsGrid");
+    grid.innerHTML = "";
+
+    if (snapshot.empty) {
+        grid.innerHTML = `<div class="no-data-msg" style="text-align:center; padding:30px;"><i class="fa-solid fa-folder-open" style="font-size:2.5rem; color:#0284c7; margin-bottom:12px;"></i><br><b>No saved PDFs found.</b><br>PDFs you view or download will appear here.</div>`;
+        return;
+    }
+
+    snapshot.forEach(docSnap => {
+        const item = docSnap.data();
+        const { previewUrl, downloadUrl } = processPdfUrls(item.pdfUrl);
+
+        const pdfCard = document.createElement("div");
+        pdfCard.className = "pdf-item-card";
+        pdfCard.innerHTML = `
+            <div class="pdf-item-header">
+                <div class="pdf-item-title">
+                    <i class="fa-solid fa-file-pdf" style="color: #e11d48; margin-right: 8px; font-size:1.1rem;"></i>
+                    <b>${item.pdfTitle}</b>
+                </div>
+                <div class="pdf-action-btns">
+                    <a href="${previewUrl}" target="_blank" class="action-btn btn-open">
+                        <i class="fa-solid fa-eye"></i> View PDF Without Download
+                    </a>
+                    <a href="${downloadUrl}" target="_blank" class="action-btn btn-download">
+                        <i class="fa-solid fa-download"></i> Re-Download
+                    </a>
+                </div>
+            </div>
+            <iframe src="${previewUrl}" width="100%" height="320" style="border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px;" allow="autoplay"></iframe>
+        `;
+        grid.appendChild(pdfCard);
+    });
+}
+
 // Admin Panel Functions
 async function renderAdminRegisteredUsers(snapshot) {
     const container = document.getElementById("adminUsersContainer");
@@ -387,92 +499,4 @@ async function renderAdminRegisteredUsers(snapshot) {
             html += `
                 <li style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #e2e8f0;">
                     <span><b>${u.name}</b> (${u.email})</span>
-                    <button onclick="deleteUser('${docSnap.id}')" style="background:#e11d48; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
-                </li>`;
-        });
-        html += `</ul>`;
-        container.innerHTML = html;
-    } catch (error) {
-        container.innerHTML = "<p>Failed to load users.</p>";
-    }
-}
-
-window.deleteUser = async function (userId) {
-    if (confirm("Are you sure you want to delete this user?")) {
-        await deleteDoc(doc(db, "registeredUsers", userId));
-        alert("User deleted.");
-    }
-};
-
-async function renderAdminMaterialsList() {
-    const list = document.getElementById("adminMaterialList");
-    try {
-        const snap = await getDocs(materialsCol);
-        if (snap.empty) {
-            list.innerHTML = "<li>No materials found.</li>";
-            return;
-        }
-
-        let html = "";
-        snap.forEach(docSnap => {
-            const m = docSnap.data();
-            html += `
-                <li style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #e2e8f0;">
-                    <span><b>[${m.course ? m.course.toUpperCase() : ''}]</b> ${m.title} (${m.type})</span>
-                    <button onclick="deleteMaterial('${docSnap.id}')" style="background:#e11d48; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>
-                </li>`;
-        });
-        list.innerHTML = html;
-    } catch (error) {
-        list.innerHTML = "<li>Failed to load materials.</li>";
-    }
-}
-
-window.deleteMaterial = async function (materialId) {
-    if (confirm("Delete this material?")) {
-        await deleteDoc(doc(db, "materialsData", materialId));
-        alert("Material deleted.");
-    }
-};
-
-// Activity Log in Firestore
-async function addActivityLog(text) {
-    try {
-        await addDoc(historyCol, { text, timestamp: serverTimestamp() });
-    } catch (e) {
-        console.error(e);
-    }
-}
-
-window.logDownload = function (title) {
-    addActivityLog(`${currentUser ? currentUser.name : 'User'} opened PDF: ${title}`);
-};
-
-function renderHistoryList(snapshot) {
-    const historyList = document.getElementById("historyList");
-    const countText = document.getElementById("downloadCount");
-
-    if (snapshot.empty) {
-        historyList.innerHTML = `<li class="empty-msg">No activity yet.</li>`;
-        countText.textContent = "0";
-        return;
-    }
-
-    countText.textContent = snapshot.size;
-    let html = "";
-    snapshot.forEach(docSnap => {
-        const item = docSnap.data();
-        html += `<li style="padding: 6px 0; border-bottom: 1px solid #f1f5f9;"><i class="fa-solid fa-angle-right"></i> ${item.text}</li>`;
-    });
-    historyList.innerHTML = html;
-}
-
-async function clearHistory() {
-    if (confirm("Clear all activity logs?")) {
-        const snap = await getDocs(historyCol);
-        snap.forEach(async (docSnap) => {
-            await deleteDoc(doc(db, "activityHistory", docSnap.id));
-        });
-    }
-                     }
-        
+                    <button onclick="deleteUser('${docSnap.id}')" style="background:#e11d48; color:white; border:none; paddi
